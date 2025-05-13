@@ -10,8 +10,72 @@ import ctypes
 import winsound
 import sys
 import os
+import requests
+import tempfile
+import shutil
+import subprocess
 
-os.chdir(sys._MEIPASS)  # Set the working directory to the location of the executable
+def handle_update_mode():
+    if len(sys.argv) == 4 and sys.argv[1] == "--update":
+        old_exe = sys.argv[2]
+        new_exe = sys.argv[3]
+
+        # Wait for old process to exit
+        for _ in range(10):
+            try:
+                os.remove(old_exe)
+                break
+            except:
+                time.sleep(1)
+
+        # Replace and restart
+        shutil.copy(new_exe, old_exe)
+        os.startfile(old_exe)
+        sys.exit()
+
+handle_update_mode()  # Call it before anything else
+
+
+def check_for_updates():
+    try:
+        response = requests.get("https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json")
+        data = response.json()
+        latest_version = data["version"]
+        download_url = data["url"]
+
+        if version != latest_version:
+            answer = tk.messagebox.askyesno("Update Available", f"A new version ({latest_version}) is available. Update now?")
+            if answer:
+                download_and_update(download_url)
+    except Exception as e:
+        print("Update check failed:", e)
+
+
+def download_and_update(download_url):
+    temp_dir = tempfile.gettempdir()
+    new_exe_path = os.path.join(temp_dir, "update_temp.exe")
+
+    try:
+        # Download new version
+        with requests.get(download_url, stream=True) as r:
+            r.raise_for_status()
+            with open(new_exe_path, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+
+        # Relaunch this .exe in update mode
+        current_exe = sys.executable
+        subprocess.Popen([current_exe, '--update', current_exe, new_exe_path], shell=True)
+
+        # Exit this app
+        root.destroy()
+        sys.exit()
+
+    except Exception as e:
+        tk.messagebox.showerror("Update Failed", str(e))
+
+if hasattr(sys, "_MEIPASS"):
+    os.chdir(sys._MEIPASS)  # Set the working directory to the location of the executable
 
 # DPI awareness for mouse accuracy
 try:
@@ -27,6 +91,7 @@ stop_key = 'f1'
 record_toggle_key = 'f2'
 mouse_ctrl = MouseController()
 keyboard_ctrl = KeyboardController()
+version = "1.2.0"
 
 def play_sound(sound_file):
         try:
