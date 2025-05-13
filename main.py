@@ -13,8 +13,11 @@ import sys
 import os
 import requests
 
+if hasattr(sys, '_MEIPASS'):
+    os.chdir(sys._MEIPASS)
+
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/main/version.json"
-version = "2.1.0"
+version = "2.1.1"
 
 def download_new_version(download_url, temp_path):
     try:
