@@ -17,7 +17,7 @@ if hasattr(sys, '_MEIPASS'):
     os.chdir(sys._MEIPASS)
 
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json"
-version = "2.1.3"
+version = "2.1.4"
 
 def download_new_version(download_url, temp_path):
     try:
@@ -55,8 +55,8 @@ def check_for_updates():
 recorded_actions = []
 recording = False
 running = False
-stop_key = 'f1'
-record_toggle_key = 'f2'
+stop_key = 'ctrl+f1'
+record_toggle_key = 'ctrl+f2'
 mouse_ctrl = MouseController()
 keyboard_ctrl = KeyboardController()
 
@@ -300,7 +300,7 @@ ttk.Button(mainframe, text="Delete", command=delete_selected_action).grid(row=4,
 ttk.Button(mainframe, text="Insert Delay", command=insert_delay).grid(row=4, column=1)
 ttk.Button(mainframe, text="Edit Delay", command=edit_delay).grid(row=5, column=0, columnspan=2)
 
-ttk.Label(mainframe, text="Hotkeys: 'F2' = Record, 'F1' = Run/Stop action").grid(row=6, column=0, columnspan=2, pady=5)
+ttk.Label(mainframe, text="Hotkeys: 'ctrl+F2' = Record, 'ctrl+F1' = Run/Stop action").grid(row=6, column=0, columnspan=2, pady=5)
 ttk.Label(mainframe, text="Version: " + version).grid(row=7, column=0, columnspan=2, pady=5)
 
 # --- Global Hotkeys ---
