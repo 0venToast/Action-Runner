@@ -6,39 +6,31 @@ from pynput import mouse, keyboard
 from pynput.mouse import Button, Controller as MouseController
 from pynput.keyboard import Controller as KeyboardController, Key
 import keyboard as kb_lib
-import ctypes
+import tempfile
+import subprocess
 import winsound
 import sys
 import os
 import requests
-import tempfile
-import shutil
-import subprocess
 
-def handle_update_mode():
-    if len(sys.argv) == 4 and sys.argv[1] == "--update":
-        old_exe = sys.argv[2]
-        new_exe = sys.argv[3]
+VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/main/version.json"
+version = "2.1.0"
 
-        # Wait for old process to exit
-        for _ in range(10):
-            try:
-                os.remove(old_exe)
-                break
-            except:
-                time.sleep(1)
-
-        # Replace and restart
-        shutil.copy(new_exe, old_exe)
-        os.startfile(old_exe)
-        sys.exit()
-
-handle_update_mode()  # Call it before anything else
-
+def download_new_version(download_url, temp_path):
+    try:
+        with requests.get(download_url, stream=True) as r:
+            r.raise_for_status()
+            with open(temp_path, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        return True
+    except Exception as e:
+        print("Download error:", e)
+        return False
 
 def check_for_updates():
     try:
-        response = requests.get("https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json")
+        response = requests.get(VERSION_URL)
         data = response.json()
         latest_version = data["version"]
         download_url = data["url"]
@@ -46,42 +38,15 @@ def check_for_updates():
         if version != latest_version:
             answer = tk.messagebox.askyesno("Update Available", f"A new version ({latest_version}) is available. Update now?")
             if answer:
-                download_and_update(download_url)
+                # Download new file to temp
+                temp_path = os.path.join(tempfile.gettempdir(), "new_version.exe")
+                if download_new_version(download_url, temp_path):
+                    launcher_path = os.path.join(os.path.dirname(sys.executable), "Updater.exe")
+                    subprocess.Popen([launcher_path, sys.executable, temp_path])
+                    root.destroy()
+                    sys.exit()
     except Exception as e:
         print("Update check failed:", e)
-
-
-def download_and_update(download_url):
-    temp_dir = tempfile.gettempdir()
-    new_exe_path = os.path.join(temp_dir, "update_temp.exe")
-
-    try:
-        # Download new version
-        with requests.get(download_url, stream=True) as r:
-            r.raise_for_status()
-            with open(new_exe_path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
-
-        # Relaunch this .exe in update mode
-        current_exe = sys.executable
-        subprocess.Popen([current_exe, '--update', current_exe, new_exe_path], shell=True)
-
-        # Exit this app
-        root.destroy()
-        sys.exit()
-
-    except Exception as e:
-        tk.messagebox.showerror("Update Failed", str(e))
-
-if hasattr(sys, "_MEIPASS"):
-    os.chdir(sys._MEIPASS)  # Set the working directory to the location of the executable
-
-# DPI awareness for mouse accuracy
-try:
-    ctypes.windll.shcore.SetProcessDpiAwareness(2)
-except Exception as e:
-    print("DPI awareness error:", e)
 
 # Globals
 recorded_actions = []
@@ -91,7 +56,6 @@ stop_key = 'f1'
 record_toggle_key = 'f2'
 mouse_ctrl = MouseController()
 keyboard_ctrl = KeyboardController()
-version = "1.2.0"
 
 def play_sound(sound_file):
         try:
@@ -304,6 +268,7 @@ def on_drag_end(event):
 # --- GUI Setup ---
 root = tk.Tk()
 root.title("Action-Runner")
+check_for_updates()
 
 mainframe = ttk.Frame(root, padding="10")
 mainframe.grid(row=0, column=0, sticky="nsew")
@@ -333,6 +298,7 @@ ttk.Button(mainframe, text="Insert Delay", command=insert_delay).grid(row=4, col
 ttk.Button(mainframe, text="Edit Delay", command=edit_delay).grid(row=5, column=0, columnspan=2)
 
 ttk.Label(mainframe, text="Hotkeys: 'F2' = Record, 'F1' = Run/Stop action").grid(row=6, column=0, columnspan=2, pady=5)
+ttk.Label(mainframe, text="Version: " + version).grid(row=7, column=0, columnspan=2, pady=5)
 
 # --- Global Hotkeys ---
 def hotkey_listener():
