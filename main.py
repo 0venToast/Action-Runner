@@ -17,7 +17,7 @@ if hasattr(sys, '_MEIPASS'):
     os.chdir(sys._MEIPASS)
 
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json"
-version = "2.2.5"
+version = "2.2.6"
 
 def download_new_version(download_url, temp_path):
     try:
@@ -317,6 +317,13 @@ action_listbox.grid(row=3, column=0, columnspan=2, pady=5)
 scrollbar = ttk.Scrollbar(mainframe, orient="vertical", command=action_listbox.yview)
 scrollbar.grid(row=3, column=2, sticky="ns")
 action_listbox.config(yscrollcommand=scrollbar.set)
+
+def select_all(event=None):
+    action_listbox.select_set(0, tk.END)
+    return "break"  # Prevent default behavior (like beep)
+
+action_listbox.bind("<Control-a>", select_all)
+
 
 action_listbox.bind("<Button-1>", on_drag_start)
 action_listbox.bind("<B1-Motion>", on_drag_motion)
