@@ -11,7 +11,7 @@ import winsound
 import sys
 import os
 
-#os.chdir(sys._MEIPASS)  # Set the working directory to the location of the executable
+os.chdir(sys._MEIPASS)  # Set the working directory to the location of the executable
 
 # DPI awareness for mouse accuracy
 try:
