@@ -17,7 +17,7 @@ if hasattr(sys, '_MEIPASS'):
     os.chdir(sys._MEIPASS)
 
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json"
-version = "2.1.4"
+version = "2.2.5"
 
 def download_new_version(download_url, temp_path):
     try:
@@ -103,20 +103,46 @@ def toggle_recording():
             recorded_actions.append(('mouse', time.time(), (x, y, button.name, pressed)))
             update_action_list()
 
+        key_states = {}
+
+        
         def on_press(key):
+            """Handles key press events to record actions."""
             if not recording:
                 return False
+            
+            try:
+                # Check if the key is a character key or a special key
+                k = key.char if hasattr(key, 'char') and key.char else key.name
+            except AttributeError:
+                k = str(key)
+
+            # If the key is not already pressed, record the action
+            if not key_states.get(k, False):  # If the key is not already pressed
+                add_delay()
+                recorded_actions.append(('key', time.time(), k))  # Record the key press
+                update_action_list()
+                
+                # Update the key state to "pressed"
+                key_states[k] = True
+
+        def on_release(key):
+            """Handles key release events to record actions."""
+            if not recording:
+                return False
+            
             try:
                 k = key.char if hasattr(key, 'char') and key.char else key.name
             except AttributeError:
                 k = str(key)
-            add_delay()
-            recorded_actions.append(('key', time.time(), k))
-            update_action_list()
+
+            # If the key is already pressed, record the key release action
+            if key_states.get(k, False):  # If the key is already pressed
+                key_states[k] = False
 
         def record_thread():
             mouse_listener = mouse.Listener(on_click=on_click)
-            keyboard_listener = keyboard.Listener(on_press=on_press)
+            keyboard_listener = keyboard.Listener(on_press=on_press, on_release=on_release)
             mouse_listener.start()
             keyboard_listener.start()
             while recording:
