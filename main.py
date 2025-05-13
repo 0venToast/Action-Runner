@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import ttk, simpledialog
+from tkinter import ttk, simpledialog, filedialog
+import json
 import threading
 import time
 from pynput import mouse, keyboard
@@ -17,7 +18,7 @@ if hasattr(sys, '_MEIPASS'):
     os.chdir(sys._MEIPASS)
 
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json"
-version = "2.2.6"
+version = "2.3.6"
 
 def download_new_version(download_url, temp_path):
     try:
@@ -65,6 +66,34 @@ def play_sound(sound_file):
             winsound.PlaySound(f"sounds/{sound_file}", winsound.SND_FILENAME)  # Play the sound
         except Exception as e:
             print(f"Error playing sound: {e}")  # If there's an error, print it
+
+def save_actions():
+    file_path = filedialog.asksaveasfilename(
+        defaultextension=".json",
+        filetypes=[("JSON files", "*.json")],
+        title="Save Recorded Actions"
+    )
+    if file_path:
+        try:
+            with open(file_path, "w") as f:
+                json.dump(recorded_actions, f)
+        except Exception as e:
+            print("Save failed:", e)
+
+def load_actions():
+    global recorded_actions
+    file_path = filedialog.askopenfilename(
+        filetypes=[("JSON files", "*.json")],
+        title="Load Recorded Actions"
+    )
+    if file_path:
+        try:
+            with open(file_path, "r") as f:
+                recorded_actions = json.load(f)
+            update_action_list()
+        except Exception as e:
+            print("Load failed:", e)
+
 
 # --- Format for UI ---
 def format_action(action):
@@ -311,6 +340,8 @@ status_var = tk.StringVar(value="Status: Idle")
 ttk.Label(mainframe, textvariable=status_var, foreground="blue").grid(row=1, column=0, columnspan=2, pady=5)
 
 ttk.Label(mainframe, text="Recorded Actions:").grid(row=2, column=0, columnspan=2, sticky="w")
+ttk.Button(mainframe, text="Save", command=save_actions).grid(row=5, column=0)
+ttk.Button(mainframe, text="Load", command=load_actions).grid(row=5, column=1)
 action_listbox = tk.Listbox(mainframe, width=60, height=12, selectmode=tk.EXTENDED)
 action_listbox.grid(row=3, column=0, columnspan=2, pady=5)
 
