@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, simpledialog, filedialog
+import tkinter.font as tkfont
 import json
 import threading
 import time
@@ -18,7 +19,7 @@ if hasattr(sys, '_MEIPASS'):
     os.chdir(sys._MEIPASS)
 
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json"
-version = "2.4.10"
+version = "2.4.11"
 
 def download_new_version(download_url, temp_path):
     try:
@@ -329,6 +330,8 @@ root.iconbitmap("icon.ico")
 root.title("Action-Runner")
 check_for_updates()
 
+custom_font = tkfont.Font(family="TkDefaultFont", size=12)
+
 mainframe = ttk.Frame(root, padding="10")
 mainframe.grid(row=0, column=0, sticky="nsew")
 
@@ -358,6 +361,7 @@ action_listbox.grid(row=3, column=0, columnspan=2, pady=5, sticky="nsew")
 scrollbar = ttk.Scrollbar(mainframe, orient="vertical", command=action_listbox.yview)
 scrollbar.grid(row=3, column=2, sticky="ns")
 action_listbox.config(yscrollcommand=scrollbar.set)
+action_listbox.config(font=custom_font)
 
 def select_all(event=None):
     action_listbox.select_set(0, tk.END)
