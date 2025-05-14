@@ -18,7 +18,7 @@ if hasattr(sys, '_MEIPASS'):
     os.chdir(sys._MEIPASS)
 
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json"
-version = "2.3.6"
+version = "2.3.7"
 
 def download_new_version(download_url, temp_path):
     try:
@@ -46,7 +46,8 @@ def check_for_updates():
                 temp_path = os.path.join(tempfile.gettempdir(), "new_version.exe")
                 if download_new_version(download_url, temp_path):
                     launcher_path = os.path.join(os.path.dirname(sys.executable), "Updater.exe")
-                    subprocess.Popen([launcher_path, sys.executable, temp_path])
+                    meipass_path = getattr(sys, '_MEIPASS', '')
+                    subprocess.Popen([launcher_path, sys.executable, temp_path, meipass_path])
                     root.destroy()
                     sys.exit()
     except Exception as e:
