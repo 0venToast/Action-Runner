@@ -18,7 +18,7 @@ if hasattr(sys, '_MEIPASS'):
     os.chdir(sys._MEIPASS)
 
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json"
-version = "2.3.10"
+version = "2.4.10"
 
 def download_new_version(download_url, temp_path):
     try:
@@ -332,6 +332,15 @@ check_for_updates()
 mainframe = ttk.Frame(root, padding="10")
 mainframe.grid(row=0, column=0, sticky="nsew")
 
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=1)
+
+mainframe.columnconfigure(0, weight=1)
+mainframe.columnconfigure(1, weight=1)
+mainframe.columnconfigure(2, weight=0)
+mainframe.rowconfigure(3, weight=1)  # Make row with listbox expandable
+
+
 ttk.Label(mainframe, text="Repeat Count (0 = Infinite):").grid(row=0, column=0, sticky="w")
 repeat_entry = ttk.Entry(mainframe)
 repeat_entry.insert(0, "1")
@@ -344,7 +353,7 @@ ttk.Label(mainframe, text="Recorded Actions:").grid(row=2, column=0, columnspan=
 ttk.Button(mainframe, text="Save", command=save_actions).grid(row=5, column=0)
 ttk.Button(mainframe, text="Load", command=load_actions).grid(row=5, column=1)
 action_listbox = tk.Listbox(mainframe, width=60, height=12, selectmode=tk.EXTENDED)
-action_listbox.grid(row=3, column=0, columnspan=2, pady=5)
+action_listbox.grid(row=3, column=0, columnspan=2, pady=5, sticky="nsew")
 
 scrollbar = ttk.Scrollbar(mainframe, orient="vertical", command=action_listbox.yview)
 scrollbar.grid(row=3, column=2, sticky="ns")
