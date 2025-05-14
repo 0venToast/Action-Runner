@@ -18,7 +18,7 @@ if hasattr(sys, '_MEIPASS'):
     os.chdir(sys._MEIPASS)
 
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json"
-version = "2.3.9"
+version = "2.3.10"
 
 def download_new_version(download_url, temp_path):
     try:
@@ -325,6 +325,7 @@ def on_drag_end(event):
 
 # --- GUI Setup ---
 root = tk.Tk()
+root.iconbitmap("icon.ico")
 root.title("Action-Runner")
 check_for_updates()
 
