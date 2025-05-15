@@ -14,12 +14,13 @@ import winsound
 import sys
 import os
 import requests
+import ctypes
 
 if hasattr(sys, '_MEIPASS'):
     os.chdir(sys._MEIPASS)
 
 VERSION_URL = "https://raw.githubusercontent.com/0venToast/Action-Runner/refs/heads/main/version.json"
-version = "2.4.11"
+version = "2.4.12"
 
 def download_new_version(download_url, temp_path):
     try:
@@ -52,6 +53,12 @@ def check_for_updates():
                     sys.exit()
     except Exception as e:
         print("Update check failed:", e)
+
+# DPI awareness for mouse accuracy
+try:
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+except Exception as e:
+    print("DPI awareness error:", e)
 
 # Globals
 recorded_actions = []
